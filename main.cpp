@@ -1,3 +1,4 @@
+#include <cctype>
 #include <iostream>
 #include <list>
 
@@ -34,12 +35,19 @@ string lowercaseStr(string &str)
 {
     string copy = str;
 
-    for (int i = 0; i < str.size(); i++)
-    {
+    for (int i = 0; i < (int)str.size(); i++)
         copy[i] = tolower(str[i]);
-    }
 
     return copy;
+}
+
+bool isAlphabetOnly(const string &str)
+{
+    for (const char &ch : str)
+        if (!isalpha(ch))
+            return false;
+
+    return true;
 }
 
 void promptFruit(list<string> &fruits)
@@ -103,26 +111,9 @@ void promptFruit(list<string> &fruits)
                     rFruit = "";
                 }
 
-                for (auto pos = fruits.begin(); pos != fruits.end();)
-                {
-                    string fruit = *pos;
-                    bool remove = true;
-
-                    for (int i = 0; i < fruit.size(); i++)
-                    {
-                        const char &fch = fruit[i], rch = rFruit[i];
-
-                        if (tolower(fch) == tolower(rch))
-                            continue;
-
-                        remove = false;
-                    }
-
-                    if (remove)
-                        pos = fruits.erase(pos);
-                    else
-                        pos++;
-                }
+                fruits.remove_if(
+                    [&](string &fruit)
+                    { return lowercaseStr(fruit) == lowercaseStr(rFruit); });
 
                 displayFruits(fruits);
             }
@@ -131,20 +122,8 @@ void promptFruit(list<string> &fruits)
         // Otherwise, proceed to listing more fruits
         else
         {
-            bool invalid = false;
-            for (const char &ch : input)
-            {
-                if (isalpha(ch))
-                    continue;
-
-                cout
-                    << "Input must only contain letters within the alphabet!\n";
-
-                invalid = true;
-                break;
-            }
-
-            if (invalid)
+            // Skip if the current iteration if the input consists of characters other than alphabetical letters
+            if (!isAlphabetOnly(input))
                 continue;
 
             fruits.push_back(input);
